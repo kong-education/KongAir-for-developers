@@ -50,6 +50,8 @@ services:
   container_name: kongair-bookings
   hostname: bookings.kongair
   restart: on-failure
+  environment:
+   - FLIGHT_SVC_ENDPOINT=http://flights.kongair:8080/flights/
   networks:
     - kong-edu-net
   ports:
