@@ -1,4 +1,4 @@
-name: Deploy Kong changes
+name: Deploy Kong changes to PRD
 
 on:
   push:
