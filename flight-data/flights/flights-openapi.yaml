@@ -18,7 +18,7 @@ tags:
 - name: health-check
   description: Operations related to health checks of the service
 - name: flight-data
-  description: Operations related to managing flight data
+  description: API is maintained by the flights team.
 
 paths:
   /health:
