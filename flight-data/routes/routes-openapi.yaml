@@ -6,16 +6,27 @@ info:
   description: KongAir Routes service provides the registered routes KongAir flies between origin and destination airports
   version: 0.1.0
   title: Routes Service
-
+  contact:
+    name: KongAir Support
+    email: learn@konghq.com
 servers:
 - url: https://api.kong-air.com
   description: KongAir API Server
+
+tags:
+- name: flight-data
+  description: Endpoints related to flight route data management
+- name: health-check
+  description: Endpoint for checking the health of the API service
 
 paths:
   /health:
     get:
       summary: Health check endpoint for Kubernetes
       description: Endpoint that returns the service health status.
+      operationId: health-check
+      tags:
+      - health-check
       responses:
         '200':
           description: Service is healthy
@@ -27,6 +38,11 @@ paths:
                   status:
                     type: string
                     example: "OK"
+          headers:
+           hostname:
+             description: "The hostname of the machine fulfilling the request."
+             schema:
+               type: string
         '500':
           description: Service is unhealthy
           content:
@@ -91,7 +107,7 @@ paths:
                   $ref: '#/components/schemas/Route'
               examples:
                 lhr-sfo:
-                  value: |
+                  value:
                    [{
                       "id": "LHR-SFO",
                       "origin": "LHR",
