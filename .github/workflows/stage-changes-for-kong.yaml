@@ -5,25 +5,17 @@ on:
     branches:
       - main
       - workflow/**
+      - feature/**
+      - bugfix/**
     paths-ignore:
       - 'PRD/**'
       - 'platform/kong/.generated/kong.yaml'
 
 jobs:
 
-#  this job is useful to debug workflows, see https://github.com/mheap/debug-artifact
-#  debug-artifacts:
-#    name: Upload Debug Artifacts
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Upload Debug Artifacts
-#        uses: mheap/debug-artifact@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   has-changes:
     name: Have specs, configurations, or pipeline files changed
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     outputs:
       are-changes: ${{ steps.changed-files.outputs.files }}
@@ -55,7 +47,7 @@ jobs:
     needs: has-changes
     if: ${{ needs.has-changes.outputs.are-changes == 'true' }}
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
@@ -64,7 +56,7 @@ jobs:
       - name: Setup deck
         uses: kong/setup-deck@v1
         with:
-          deck-version: '1.26.0'
+          deck-version: '1.37.0'
           wrapper: false
 
       - name: Convert Flights API to Kong
