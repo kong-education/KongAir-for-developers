@@ -14,10 +14,10 @@ servers:
   description: KongAir API Server
 
 tags:
-- name: flight-data
-  description: Endpoints related to flight route data management
 - name: health-check
   description: Endpoint for checking the health of the API service
+- name: flight-data
+  description: API is maintained by the flights team.
 
 paths:
   /health:

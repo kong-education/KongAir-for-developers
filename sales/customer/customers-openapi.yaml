@@ -16,8 +16,10 @@ servers:
 tags:
 - name: health-check
   description: Endpoint for checking the health of the API service
-- name: customer-information
-  description: Endpoints related to managing customer information
+- name: customer
+  description: Endpoints related to customer information
+- name: sales
+  description: API is maintained by the sales team.
 
 paths:
   /health:
