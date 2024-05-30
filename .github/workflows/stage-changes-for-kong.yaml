@@ -1,24 +1,27 @@
-name: Stage changes for Kong
+# Purpose: This workflow detects changes to the API Specs and decK config
+# Output: A PR is created with the changes to the Kong Gateway configuration.
+name: Stage Kong Config Changes
 
 on:
   push:
     branches:
       - main
-      - workflow/**
       - feature/**
       - bugfix/**
+      - config/**
     paths-ignore:
       - 'PRD/**'
       - 'platform/kong/.generated/kong.yaml'
 
 jobs:
-
   has-changes:
+    # Detects changes to API Specs and Kong configurations
     name: Have specs, configurations, or pipeline files changed
     runs-on: self-hosted
 
     outputs:
       are-changes: ${{ steps.changed-files.outputs.files }}
+      changed-files: ${{ steps.output-changed-files.outputs.changed_files }}
 
     steps:
       - name: Checkout
@@ -30,19 +33,22 @@ jobs:
           filters: |
             files:
               - '.github/workflows/stage-changes-for-kong.yaml'
-              - 'flight-data/flights/openapi.yaml'
+              - 'flight-data/flights/flights-openapi.yaml'
               - 'flight-data/flights/kong/**'
-              - 'flight-data/routes/openapi.yaml'
+              - 'flight-data/routes/routes-openapi.yaml'
               - 'flight-data/routes/kong/**'
-              - 'sales/bookings/opeanapi.yaml'
+              - 'sales/bookings/sales-openapi.yaml'
               - 'sales/bookings/kong/**'
-              - 'sales/customer/opeanapi.yaml'
+              - 'sales/customer/customers-openapi.yaml'
               - 'sales/customer/kong/**'
+              - 'sales/bookings/bookings-openapi.yaml'
+              - 'sales/bookings/kong/**'
               - 'experience/kong/**'
               - 'platform/kong/**'
 
   oas-to-kong:
-    name: Convert OAS to Kong configurations
+    # If changes are detected, convert the OpenAPI Specs and merge config
+    name: Convert Open to Kong configurations
 
     needs: has-changes
     if: ${{ needs.has-changes.outputs.are-changes == 'true' }}
@@ -53,46 +59,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup deck
-        uses: kong/setup-deck@v1
-        with:
-          deck-version: '1.26.0'
-          wrapper: false
-
-      - name: Convert Flights API to Kong
         # In multiple steps, convert the OpenAPI Spec to a Kong declarative configuration
         #   and then patch the result with the data in the kong/patches.yaml
         #   and apply some tags
+      - name: Convert Flights API to Kong
         run: |
-          deck file openapi2kong -s flight-data/flights/openapi.yaml | \
+          deck file openapi2kong -s flight-data/flights/flights-openapi.yaml | \
             deck file patch flight-data/flights/kong/patches.yaml | \
             deck file add-tags -o .github/artifacts/kong/flight-data-flights-kong.yaml \
               --selector "$.services[*]" --selector "$.services[*].routes[*]" flight-data
 
-
       - name: Convert Routes API to Kong
-        # In two steps, convert the OpenAPI Spec to a Kong declarative configuration
-        #   and then patch the result with the data in the kong/patches.yaml
         run: |
-          deck file openapi2kong -s flight-data/routes/openapi.yaml | \
+          deck file openapi2kong -s flight-data/routes/routes-openapi.yaml | \
             deck file patch flight-data/routes/kong/patches.yaml | \
             deck file add-tags -o .github/artifacts/kong/flight-data-routes-kong.yaml \
               --selector "$.services[*]" --selector "$.services[*].routes[*]" flight-data
 
       - name: Convert Bookings API to Kong
-        # In two steps, convert the OpenAPI Spec to a Kong declarative configuration
-        #   and then patch the result with the data in the kong/patches.yaml
         run: |
-          deck file openapi2kong -s sales/bookings/openapi.yaml | \
+          deck file openapi2kong -s sales/bookings/bookings-openapi.yaml | \
             deck file patch  sales/bookings/kong/patches.yaml | \
             deck file add-tags -o .github/artifacts/kong/sales-bookings-kong.yaml \
               --selector "$.services[*]" --selector "$.services[*].routes[*]" sales
 
       - name: Convert Customers API to Kong
-        # In two steps, convert the OpenAPI Spec to a Kong declarative configuration
-        #   and then patch the result with the data in the kong/patches.yaml
         run: |
-          deck file openapi2kong -s sales/customer/openapi.yaml | \
+          deck file openapi2kong -s sales/customer/customers-openapi.yaml | \
             deck file patch sales/customer/kong/patches.yaml | \
             deck file add-tags -o .github/artifacts/kong/sales-customer-kong.yaml --selector "$.services[*]" \
               --selector "$.services[*].routes[*]" sales
@@ -127,8 +120,7 @@ jobs:
             .github/artifacts/kong/kong-combined.yaml \
             platform/kong/platform-kong-base.yaml     \
             platform/kong/consumers/*                 \
-            platform/kong/plugins/*                   \
-            platform/kong/vaults/* |                  \
+            platform/kong/plugins/* |                  
           deck file patch \
             platform/kong/patches.yaml |
           deck file add-tags \
@@ -136,7 +128,7 @@ jobs:
             "platform-repo-managed"
 
       - name: Upload Artifacts
-        # Artifacts are the files that are built along the way of the pipeline but are not committed to the repo
+        # Artifacts are the files that are built along the way of the pipeline but are not committed to the repo 
         uses: actions/upload-artifact@v3
         with:
           name: kong-configurations
@@ -144,6 +136,7 @@ jobs:
 
       - name: Create PR for changed Kong Gateway Configuration
         # The only file that should be changed for this PR is platform/kong/.generated/kong.yaml
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           title: Stage Kong Gateway Configuration
+          branch: create-pull-request/patch
