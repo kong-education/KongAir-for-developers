@@ -1,4 +1,4 @@
-name: Deploy Kong changes to PRD
+name: Deploy Kong changes to Prod
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - PRD/kong/kong.yaml
-      - .github/workflows/deploy-kong-PRD.yaml
+      - .github/workflows/deploy-kong-to-prod.yaml
 
 jobs:
   deploy-kong:
@@ -17,28 +17,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup deck
-        uses: kong/setup-deck@v1
-        with:
-          deck-version: '1.26.0'
-          wrapper: false
+      # - name: Setup deck
+      #   uses: kong/setup-deck@v1
+      #   with:
+      #     deck-version: '1.26.0'
+      #     wrapper: false
 
-      - name: Check DEPLOY_TARGET
+      - name: Check and Set DEPLOY_TARGET
         id: check-deploy-target
-        run: echo "DEPLOY_TARGET=${{ env.DEPLOY_TARGET }}" >> $GITHUB_ENV
+        run: |
+          if [ -z "${{ env.DEPLOY_TARGET }}" ]; then
+            echo "DEPLOY_TARGET=local" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_TARGET=${{ env.DEPLOY_TARGET }}" >> $GITHUB_ENV
+          fi
 
       - name: deck gateway sync to Konnect
         if: env.DEPLOY_TARGET == 'konnect'
         run: |
           deck gateway sync --select-tag platform-repo-managed \
               PRD/kong/kong.yaml \
-              --konnect-runtime-group-name KongAir-PRD \
+              ----konnect-control-plane-name test-cp \
               --konnect-token ${{ secrets.KONNECT_PAT }}
 
       - name: deck gateway sync locally
         if: env.DEPLOY_TARGET == 'local'
         run: |
-          deck sync --select-tag platform-repo-managed \
+          deck gateway sync --select-tag platform-repo-managed \
               PRD/kong/kong.yaml \
               --workspace default \
               --kong-addr http://localhost:8001

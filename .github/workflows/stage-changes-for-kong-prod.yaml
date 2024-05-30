@@ -1,41 +1,25 @@
-name: Stage Kong changes for PRD in a PR
+name: Stage Kong changes for Prod in a PR
 
 on:
   push:
     branches:
       - main
       - workflow/**
+      - feature/**
     paths:
       - platform/kong/.generated/kong.yaml
-      - .github/workflows/stage-kong-for-PRD.yaml
+      - .github/workflows/stage-changes-for-kong-prod.yaml
 
 jobs:
-
-#  this job is useful to debug workflows, see https://github.com/mheap/debug-artifact
-#  debug-artifacts:
-#    name: Upload Debug Artifacts
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Upload Debug Artifacts
-#        uses: mheap/debug-artifact@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   stage-kong-for-prd:
-    name: Stage Kong changes for PRD
+    name: Stage Kong changes for Prod
     runs-on: self-hosted
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup deck
-        uses: kong/setup-deck@v1
-        with:
-          deck-version: '1.26.0'
-          wrapper: false
-
-      - name: stage combined file for PRD
+      - name: stage combined file for Prod
         run: cp platform/kong/.generated/kong.yaml PRD/kong/kong.yaml
 
       - name: deck diff
@@ -46,13 +30,14 @@ jobs:
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "DIFF<<$EOF" >> $GITHUB_ENV
-          deck diff --select-tag platform-repo-managed -s PRD/kong/kong.yaml --konnect-runtime-group-name KongAir-PRD --konnect-token ${{ secrets.KONNECT_PAT }} >> $GITHUB_ENV
+          deck gateway diff --select-tag platform-repo-managed PRD/kong/kong.yaml >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
 
       - name: Create PR to stage changes for the Kong Gateway in production
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
-          title: "❗PRD❗: Staged changes for Kong Gateway PRD deployment"
+          title: "❗Prod❗: Staged changes for Kong Gateway prod deployment"
+          base: main
           branch: "PRD/kong"
           labels: "PRD,kong"
           body: "Merging this PR will result in the following changes deployed to PRD \n\n ```\n${{env.DIFF}}\n```"
