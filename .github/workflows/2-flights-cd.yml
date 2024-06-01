@@ -41,13 +41,17 @@ jobs:
 
       - name: Deploy declarative config
         run: deck gateway sync flight-data/flights/kong/.generated/kong.yaml
-        
-      - name: Publish Spec to Dev Portal
+
+      - name: Run Integration Tests
         run: |
-          cd flight-data/flights && \
-          http --check-status --ignore-stdin PUT :8001/default/files/specs/flights-openapi.yaml contents=@flights-openapi.yaml
-
-
+          for test_script in flight-data/flights/tests/*.sh; do
+            echo "Running $test_script"
+            bash "$test_script"
+            if [ $? -ne 0 ]; then
+              echo "Test $test_script failed"
+              exit 1
+            fi
+          done
         
 
 
