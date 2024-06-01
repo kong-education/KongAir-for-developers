@@ -1,0 +1,56 @@
+name: Apply generated configuration to local Kong gateway and update API documentation
+
+on:
+  push:
+    branches:
+      - feature/**
+
+jobs:
+  deploy_to_kong:
+    runs-on: self-hosted
+    name: Apply generated configuration to local Kong gateway and update API documentation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate Kong declarative configuration from Spec
+        run: |
+          deck file openapi2kong --spec flight-data/flights/flights-openapi.yaml \
+          --output-file flight-data/flights/kong/.generated/kong.yaml
+
+      - name: Add plugin configuration
+        run: |
+          deck file merge flight-data/flights/kong/.generated/kong.yaml \
+          flight-data/flights/kong/plugins/*.yaml \
+          --output-file flight-data/flights/kong/.generated/kong.yaml
+
+      - name: Add tags to Kong configuration
+        run: |
+          cat flight-data/flights/kong/.generated/kong.yaml | deck file add-tags  --selector "$.services[*]" \
+          --selector "$.services[*].routes[*]" flights-team \
+          --output-file flight-data/flights/kong/.generated/kong.yaml
+
+        # We need to patch the configuration to point to the local instance of kong
+      - name: Patch service for test environment
+        run: |
+          cat flight-data/flights/kong/.generated/kong.yaml | deck file patch flight-data/flights/kong/patches.yaml \
+          --output-file flight-data/flights/kong/.generated/kong.yaml
+
+      - name: Validate Kong declarative configuration
+        run: deck gateway validate flight-data/flights/kong/.generated/kong.yaml
+
+      - name: Deploy declarative config
+        run: deck gateway sync flight-data/flights/kong/.generated/kong.yaml
+        
+      - name: Publish Spec to Dev Portal
+        run: |
+          cd flight-data/flights && \
+          http --check-status --ignore-stdin PUT :8001/default/files/specs/flights-openapi.yaml contents=@flights-openapi.yaml
+
+
+        
+
+
+
+
+
