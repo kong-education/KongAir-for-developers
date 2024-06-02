@@ -16,5 +16,4 @@ git checkout development/flights
 
 git checkout -b task/add-custom-headers
 
-
 git branch --all
