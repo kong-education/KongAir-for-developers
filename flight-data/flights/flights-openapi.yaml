@@ -55,7 +55,6 @@ paths:
                     type: string
                     example: "unhealthy"
   "/flights":
-
     # x-kong-plugin-response-transformer:
     #   name: response-transformer
     #   config:
