@@ -1,7 +1,7 @@
 #!/bin/bash
-
+sleep 5
 # Send the request and capture the headers
-response=$(http --headers --check-status GET http://localhost/flights)
+response=$(http --headers --check-status GET http://localhost:8000/flights)
 status_code=$(echo "$response" | grep HTTP | awk '{print $2}')
 provider_header=$(echo "$response" | grep x-flights-provider | awk '{print $2}')
 
