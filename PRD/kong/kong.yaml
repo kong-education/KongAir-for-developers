@@ -34,13 +34,10 @@ consumers:
   username: jsmith
 plugins:
 - config:
-    account_email: '{vault://env/acme/account_email}'
-    domains:
-    - api.kong-air.com
-    renew_threshold_days: 30
-  enabled: true
-  id: 85c9d396-5330-11ee-8c99-0242ac120002
-  name: acme
+    hour: 10000
+    policy: local
+    second: 10
+  name: rate-limiting
   tags:
   - platform-repo-managed
 services:
@@ -94,10 +91,10 @@ services:
     tags:
     - flight-data
     - platform-repo-managed
-  - id: a5023323-0468-5a77-baf2-13578fec61b0
+  - id: ca0212c0-ed53-5e6d-97d4-99093a6ca93c
     methods:
     - GET
-    name: flights-service_health_get
+    name: flights-service_health-check
     paths:
     - ~/health$
     plugins: []
@@ -119,10 +116,10 @@ services:
   port: 8081
   protocol: http
   routes:
-  - id: 4da7a5e5-9e69-59af-a6c3-46a675c5bac6
+  - id: daab17c9-4cd1-5ee0-a53d-e280e380a481
     methods:
     - GET
-    name: routes-service_health_get
+    name: routes-service_health-check
     paths:
     - ~/health$
     plugins: []
@@ -191,20 +188,6 @@ services:
     tags:
     - sales
     - platform-repo-managed
-  - id: 4e2f555e-980c-5241-a640-9f0a67ab6693
-    methods:
-    - POST
-    name: bookings-service_post-booking
-    paths:
-    - ~/bookings$
-    plugins: []
-    protocols:
-    - https
-    regex_priority: 200
-    strip_path: false
-    tags:
-    - sales
-    - platform-repo-managed
   - id: 1a619e4f-651d-550d-ae30-79f4bf45a080
     methods:
     - GET
@@ -249,10 +232,10 @@ services:
     tags:
     - sales
     - platform-repo-managed
-  - id: 37cbdca9-74d9-51ec-ab8b-008d96f9bd75
+  - id: d01e3d1b-e1aa-5ad9-94a3-c0025c4b0ad6
     methods:
     - GET
-    name: customer-information-service_health_get
+    name: customer-information-service_health-check
     paths:
     - ~/health$
     plugins: []
@@ -310,18 +293,4 @@ services:
     - platform-repo-managed
   tags:
   - platform-repo-managed
-- name: acme-dummy-service
-  routes:
-  - hosts:
-    - api.kong-air.com
-    name: acme-dummy-route
-    paths:
-    - /.well-known/acme-challenge
-    protocols:
-    - http
-    tags:
-    - platform-repo-managed
-  tags:
-  - platform-repo-managed
-  url: http://127.0.0.1:65535
 upstreams: []
