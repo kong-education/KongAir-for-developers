@@ -5,8 +5,8 @@ name: Stage Kong Config Changes
 on:
   push:
     branches:
+      - main
       - bugfix/**
-      - development/**
     paths-ignore:
       - 'PRD/**'
       - 'platform/kong/.generated/kong.yaml'
