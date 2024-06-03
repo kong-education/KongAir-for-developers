@@ -14,12 +14,12 @@ servers:
 - url: https://api.kong-air.com
   description: KongAir API Server
 
-x-kong-plugin-response-transformer:
-      name: response-transformer
-      config:
-        add:
-          headers:
-            - "x-flights-provider: kong-air"
+# x-kong-plugin-response-transformer:
+#       name: response-transformer
+#       config:
+#         add:
+#           headers:
+#             - "x-flights-provider: kong-air"
 
 tags:
 - name: health-check
