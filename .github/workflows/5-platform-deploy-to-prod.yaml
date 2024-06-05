@@ -1,12 +1,12 @@
 name: Deploy Kong changes to Prod
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - PRD/kong/kong.yaml
-      - .github/workflows/deploy-kong-to-prod.yaml
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - PRD/kong/kong.yaml
+#       - .github/workflows/deploy-kong-to-prod.yaml
 
 jobs:
   deploy-kong:

@@ -2,15 +2,15 @@
 # Output: A PR is created with the changes to the Kong Gateway configuration.
 name: Stage Kong Config Changes
 
-on:
-  push:
-    branches:
-      - main
-      - release/**
-      - bugfix/**
-    paths-ignore:
-      - 'PRD/**'
-      - 'platform/kong/.generated/kong.yaml'
+# on:
+#   push:
+#     branches:
+#       - main
+#       - release/**
+#       - bugfix/**
+#     paths-ignore:
+#       - 'PRD/**'
+#       - 'platform/kong/.generated/kong.yaml'
 
 jobs:
   has-changes:
