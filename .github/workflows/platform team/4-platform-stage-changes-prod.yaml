@@ -1,14 +1,14 @@
 name: Stage Kong changes for Prod in a PR
 
-# on:
-#   push:
-#     branches:
-#       - main
-#       - workflow/**
-#       - feature/**
-#     paths:
-#       - platform/kong/.generated/kong.yaml
-#       - .github/workflows/stage-changes-for-kong-prod.yaml
+on:
+  push:
+    branches:
+      - main
+      - workflow/**
+      - feature/**
+    paths:
+      - platform/kong/.generated/kong.yaml
+      - .github/workflows/stage-changes-for-kong-prod.yaml
 
 jobs:
   stage-kong-for-prd:
