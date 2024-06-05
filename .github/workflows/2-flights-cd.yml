@@ -13,6 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Check Kong Gateway is up
+        run: deck gateway ping --kong-addr http://localhost:8001
+
       - name: Generate Kong declarative configuration from Spec
         run: |
           deck file openapi2kong --spec flight-data/flights/flights-openapi.yaml \
@@ -26,18 +29,26 @@ jobs:
 
       - name: Add tags to Kong configuration
         run: |
-          cat flight-data/flights/kong/.generated/kong.yaml | deck file add-tags  --selector "$.services[*]" \
+          cat flight-data/flights/kong/.generated/kong.yaml | \
+          deck file add-tags  --selector "$.services[*]" \
           --selector "$.services[*].routes[*]" flights-team \
           --output-file flight-data/flights/kong/.generated/kong.yaml
 
-        # We need to patch the configuration to point to the local instance of kong
+
       - name: Patch service for test environment
         run: |
-          cat flight-data/flights/kong/.generated/kong.yaml | deck file patch flight-data/flights/kong/patches.yaml \
+          cat flight-data/flights/kong/.generated/kong.yaml | \
+          deck file patch flight-data/flights/kong/patches.yaml \
           --output-file flight-data/flights/kong/.generated/kong.yaml
 
       - name: Validate Kong declarative configuration
         run: deck gateway validate flight-data/flights/kong/.generated/kong.yaml
+
+      - name: Backup current Kong Configuration
+        run: deck gateway dump flight-data/flights/kong/.generated/backup.yaml
+
+      - name: Check changes against current Kong configuration
+        run: deck gateway diff flight-data/flights/kong/.generated/kong.yaml
 
       - name: Deploy declarative config
         run: deck gateway sync flight-data/flights/kong/.generated/kong.yaml
@@ -52,6 +63,13 @@ jobs:
               exit 1
             fi
           done
+      - name: Publish Spec to Dev Portal
+        run: |
+          cd flight-data/flights && \
+          http --check-status --ignore-stdin PUT :8001/default/files/specs/flights-openapi.yaml contents=@flights-openapi.yaml
+  
+  
+
         
 
 
