@@ -15,13 +15,17 @@ jobs:
         #First we check whether the Kong Gateway is up
       - name: Check Kong Gateway is up
         run: deck gateway ping --kong-addr http://localhost:8001
+
       - name: Lint OpenAPI Specification
         run: inso lint spec flight-data/flights/flights-openapi.yaml --ci
+
       - name: Generate Kong declarative configuration from Spec
         run: |
           deck file openapi2kong --spec flight-data/flights/flights-openapi.yaml \
           --output-file flight-data/flights/kong/.generated/kong.yaml
+
       - name: Validate Kong declarative configuration
         run: deck gateway validate flight-data/flights/kong/.generated/kong.yaml
+        
       - name: Check changes against current Kong configuration
         run: deck gateway diff flight-data/flights/kong/.generated/kong.yaml
