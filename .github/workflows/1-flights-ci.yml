@@ -1,4 +1,4 @@
-name: Action on Pull Request to generate Kong config from Spec and validate it
+name: Kong CI - Validate Spec and Kong Config
 
 on:
   pull_request:

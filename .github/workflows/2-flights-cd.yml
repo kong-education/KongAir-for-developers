@@ -1,4 +1,4 @@
-name: Apply generated configuration to local Kong gateway and update API documentation
+name: Flights CD - Deploy to Kong and Upload Spec
 
 on:
   push:
