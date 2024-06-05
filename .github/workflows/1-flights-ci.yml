@@ -6,7 +6,7 @@ on:
       - development/**
       
 jobs:
-  deploy_to_kong:
+  validate_oas_and_kong_config:
     runs-on: self-hosted
     name: Generate Kong config from Spec and Validate config
     steps:
@@ -26,6 +26,6 @@ jobs:
 
       - name: Validate Kong declarative configuration
         run: deck gateway validate flight-data/flights/kong/.generated/kong.yaml
-        
+
       - name: Check changes against current Kong configuration
         run: deck gateway diff flight-data/flights/kong/.generated/kong.yaml
