@@ -62,12 +62,6 @@ paths:
                     type: string
                     example: "unhealthy"
   "/flights":
-    x-kong-plugin-response-transformer:
-      name: response-transformer
-      config:
-        add:
-          headers:
-            - "x-flights-provider: kong-air"
     get:
       summary: Get KongAir planned flights
       description: |

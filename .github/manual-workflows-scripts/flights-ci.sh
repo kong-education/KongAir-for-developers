@@ -22,6 +22,12 @@ echo "Step 4: Generate Kong declarative configuration from Spec"
 deck file openapi2kong --spec flight-data/flights/flights-openapi.yaml --output-file flight-data/flights/kong/.generated/kong.yaml
 check_status $? "Generating Kong declarative configuration failed"
 
+echo "Step 4: Add plugin config to Kong declarative configuration"
+deck file merge flight-data/flights/kong/.generated/kong.yaml \
+          flight-data/flights/kong/plugins/*.yaml \
+          --output-file flight-data/flights/kong/.generated/kong.yaml
+check_status $? "Adding plugins failed"
+
 echo "Step 5: Validate Kong declarative configuration"
 deck gateway validate flight-data/flights/kong/.generated/kong.yaml
 check_status $? "Validating Kong declarative configuration failed"
