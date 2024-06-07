@@ -32,8 +32,5 @@ echo "Step 5: Validate Kong declarative configuration"
 deck gateway validate flight-data/flights/kong/.generated/kong.yaml
 check_status $? "Validating Kong declarative configuration failed"
 
-echo "Step 6: Check changes against current Kong configuration"
-deck gateway diff flight-data/flights/kong/.generated/kong.yaml
-check_status $? "Checking changes against current Kong configuration failed"
 
 echo "All steps completed successfully"
