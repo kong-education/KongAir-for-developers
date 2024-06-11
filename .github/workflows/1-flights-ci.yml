@@ -30,5 +30,18 @@ jobs:
           flight-data/flights/kong/plugins/*.yaml \
           --output-file flight-data/flights/kong/.generated/kong.yaml
 
+      - name: Add tags to Kong configuration
+        run: |
+          cat flight-data/flights/kong/.generated/kong.yaml | \
+          deck file add-tags  --selector "$.services[*]" \
+          --selector "$.services[*].routes[*]" flights-team \
+          --output-file flight-data/flights/kong/.generated/kong.yaml
+
+      - name: Patch service for test environment
+        run: |
+          cat flight-data/flights/kong/.generated/kong.yaml | \
+          deck file patch flight-data/flights/kong/patches.yaml \
+          --output-file flight-data/flights/kong/.generated/kong.yaml  
+                  
       - name: Validate Kong declarative configuration
         run: deck gateway validate flight-data/flights/kong/.generated/kong.yaml
