@@ -8,8 +8,8 @@ info:
   title: Bookings Service
 
 servers:
-# - url: https://api.kong-air.com
-#   description: KongAir API Server
+- url: https://api.kong-air.com
+  description: KongAir API Server
 - url: http://localhost:5054
   description: Local API Server
 
