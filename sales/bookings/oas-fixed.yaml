@@ -1,5 +1,6 @@
 ---
 # OpenAPI Spec for the KongAir Bookings service
+# This is the solution for the OAS spec
 openapi: 3.0.0
 
 info:
