@@ -42,9 +42,4 @@ jobs:
               --workspace default \
               --kong-addr http://localhost:8001
 
-      - name: Publish Spec to Dev Portal
-        run: |
-          cd flight-data/flights && \
-          http --check-status --ignore-stdin PUT :8001/default/files/specs/flights-openapi.yaml contents=@flights-openapi.yaml
-
 
