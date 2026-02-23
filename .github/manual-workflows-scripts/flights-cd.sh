@@ -56,10 +56,3 @@ for test_script in flight-data/flights/tests/*.sh; do
     exit 1
   fi
 done
-
-echo "Step 12: Publish Spec to Dev Portal"
-cd flight-data/flights
-http --check-status --ignore-stdin PUT :8001/default/files/specs/flights-openapi.yaml contents=@flights-openapi.yaml
-check_status $? "Publishing Spec to Dev Portal failed"
-
-echo "All steps completed successfully"
